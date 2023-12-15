@@ -54,8 +54,27 @@ describe('pluginSelectors', () => {
   describe('enabledSchema', () => {
     it('enabledSchema should return correct ChatCompletionFunctions array', () => {
       const result = pluginSelectors.enabledSchema(['plugin-1'])(mockState);
-      expect(result).toEqual([{ name: 'plugin-1____api-1____default' }]);
+      expect(result).toEqual([{ name: 'plugin-1____api-1' }]);
     });
+    it('enabledSchema should return with standalone plugin', () => {
+      const result = pluginSelectors.enabledSchema(['plugin-3'])({
+        ...mockState,
+        installedPlugins: [
+          ...mockState.installedPlugins,
+          {
+            identifier: 'plugin-3',
+            manifest: {
+              identifier: 'plugin-3',
+              api: [{ name: 'api-3' }],
+              type: 'standalone',
+            },
+            type: 'plugin',
+          },
+        ],
+      } as ToolStoreState);
+      expect(result).toEqual([{ name: 'plugin-3____api-3____standalone' }]);
+    });
+
     it('enabledSchema should return empty', () => {
       const result = pluginSelectors.enabledSchema([])(mockState);
       expect(result).toEqual([]);
